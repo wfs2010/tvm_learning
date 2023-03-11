@@ -1,0 +1,40 @@
+# nohup tvmc tune --target "llvm" --output resnet50-v2-7-autotuner_records.json resnet50-v2-7.onnx > re.log 2>&1 &
+
+# 使用调优数据编译模型
+# tvmc compile \
+# --target "llvm" \
+# --tuning-records resnet50-v2-7-autotuner_records.json  \
+# --output resnet50-v2-7-tvm_autotuned.tar \
+# resnet50-v2-7.onnx
+
+
+tvmc run \
+--inputs imagenet_cat.npz \
+--output predictions.npz \
+resnet50-v2-7-tvm_autotuned.tar
+
+python main.py
+
+tvmc run \
+--inputs imagenet_cat.npz \
+--output predictions.npz  \
+--print-time \
+--repeat 100 \
+resnet50-v2-7-tvm_autotuned.tar
+
+Execution time summary:
+mean (ms)   median (ms)    max (ms)     min (ms)     std (ms)
+  163.7980     163.9259     180.6157     158.4121      2.6947
+
+
+tvmc run \
+--inputs imagenet_cat.npz \
+--output predictions.npz  \
+--print-time \
+--repeat 100 \
+resnet50-v2-7-tvm.tar
+
+Execution time summary:
+ mean (ms)   median (ms)    max (ms)     min (ms)     std (ms)
+  203.5151     203.6123     208.3927     195.9178      2.5626
+
